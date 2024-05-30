@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.*;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -55,6 +56,12 @@ public class JavaExercisesTest {
 
         int[] test2 = new int[]{2, 4, 6, 8};
         assertThat(JavaExercises.findMinMax(test2)).isEqualTo(6);
+
+        int[] test3 = new int[0];
+        assertThat(JavaExercises.findMinMax(test3)).isEqualTo(0);
+
+        int[] test4 = null;
+        assertThat(JavaExercises.findMinMax(test4)).isEqualTo(0);
     }
 
     @Test
