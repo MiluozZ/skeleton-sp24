@@ -127,36 +127,26 @@ public class Model {
      */
     public boolean atLeastOneMoveExists() {
         // TODO: Fill in this function.
-        // 1.至少还存在一个空区域
-        if (emptySpaceExists()) {
-            return true;
-        }
+        return emptySpaceExists() || haveSameAdjacentTiles();
+    }
 
+    private boolean haveSameAdjacentTiles() {
+        // 左下角开始比较右边和上边
         for (int i = 0; i < size(); i++) {
             for (int j = 0; j < size(); j++) {
-
-                // 2.两个相邻的值相同
-                if (i == size() - 1 && j == size() - 1) {
-                    continue;
+                Tile currentTile = tile(i, j);
+                if (currentTile != null) {
+                    // 检查右边
+                    if (j < size() - 1 && tile(i, j + 1) != null && currentTile.value() == tile(i, j + 1).value()) {
+                        return true;
+                    }
+                    // 检查上边
+                    if (i < size() - 1 && tile(i + 1, j) != null && currentTile.value() == tile(i + 1, j).value()) {
+                        return true;
+                    }
                 }
-                if (j == size() - 1) {
-                    if (tile(i, j).value() == tile(i + 1, j).value()) {
-                        return true;
-                    }
-                } else if (i == size() - 1) {
-                    if (tile(i, j).value() == tile(i, j + 1).value()) {
-                        return true;
-                    }
-                } else {
-                    if (tile(i, j).value() == tile(i, j + 1).value() || tile(i, j).value() == tile(i + 1, j).value()) {
-                        return true;
-                    }
-
-                }
-
             }
         }
-
         return false;
     }
 
@@ -183,11 +173,12 @@ public class Model {
         if (y == size() - 1) {
             return;
         }
-        int yNeedMove = y;
+        // 从当前位置往上开始遍历
         for (int i = y + 1; i < size(); i++) {
            if (tile(x, i) == null) {
-              yNeedMove = i;
-              if (yNeedMove == size() - 1) {
+              //如果下一个为空，如果下一个是最上面，则直接移动，不是则跳下一个
+              targetY = i;
+              if (targetY == size() - 1) {
                   board.move(x, size() - 1, currTile);
                   return;
               } else {
@@ -195,12 +186,14 @@ public class Model {
               }
            }
            if (tile(x, i).value() == myValue && !tile(x, i).wasMerged()) {
+               //如果值相同且为合并，则进行合并
                board.move(x, i, currTile);
                score = score + ( 2 * myValue );
                return;
            } else {
-               if (yNeedMove != y) {
-                   board.move(x, yNeedMove, currTile);
+               // 如果目标位置和当前位置不同才进行移动，相同则不变
+               if (targetY != y) {
+                   board.move(x, targetY, currTile);
                }
                return;
            }
