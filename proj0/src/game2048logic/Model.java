@@ -85,7 +85,16 @@ public class Model {
      * */
     public boolean emptySpaceExists() {
         // TODO: Task 2. Fill in this function.
-        return false;
+        boolean isEmptySpaceFound = false;
+        for (int i = 0; i < size(); i++) {
+            for (int j = 0; j < size(); j++) {
+                if (tile(i, j) == null) {
+                    isEmptySpaceFound = true;
+                    break;
+                }
+            }
+        }
+        return isEmptySpaceFound;
     }
 
     /**
@@ -95,7 +104,19 @@ public class Model {
      */
     public boolean maxTileExists() {
         // TODO: Task 3. Fill in this function.
-        return false;
+        boolean isMaxTileFound = false;
+        for (int i = 0; i < size(); i++) {
+            for (int j = 0; j < size(); j++) {
+                if (tile(i, j) == null) {
+                    continue;
+                }
+                if (tile(i, j).value() == MAX_PIECE) {
+                    isMaxTileFound = true;
+                    break;
+                }
+            }
+        }
+        return isMaxTileFound;
     }
 
     /**
@@ -106,6 +127,36 @@ public class Model {
      */
     public boolean atLeastOneMoveExists() {
         // TODO: Fill in this function.
+        // 1.至少还存在一个空区域
+        if (emptySpaceExists()) {
+            return true;
+        }
+
+        for (int i = 0; i < size(); i++) {
+            for (int j = 0; j < size(); j++) {
+
+                // 2.两个相邻的值相同
+                if (i == size() - 1 && j == size() - 1) {
+                    continue;
+                }
+                if (j == size() - 1) {
+                    if (tile(i, j).value() == tile(i + 1, j).value()) {
+                        return true;
+                    }
+                } else if (i == size() - 1) {
+                    if (tile(i, j).value() == tile(i, j + 1).value()) {
+                        return true;
+                    }
+                } else {
+                    if (tile(i, j).value() == tile(i, j + 1).value() || tile(i, j).value() == tile(i + 1, j).value()) {
+                        return true;
+                    }
+
+                }
+
+            }
+        }
+
         return false;
     }
 
@@ -129,6 +180,31 @@ public class Model {
         int targetY = y;
 
         // TODO: Tasks 5, 6, and 10. Fill in this function.
+        if (y == size() - 1) {
+            return;
+        }
+        int yNeedMove = y;
+        for (int i = y + 1; i < size(); i++) {
+           if (tile(x, i) == null) {
+              yNeedMove = i;
+              if (yNeedMove == size() - 1) {
+                  board.move(x, size() - 1, currTile);
+                  return;
+              } else {
+                  continue;
+              }
+           }
+           if (tile(x, i).value() == myValue && !tile(x, i).wasMerged()) {
+               board.move(x, i, currTile);
+               score = score + ( 2 * myValue );
+               return;
+           } else {
+               if (yNeedMove != y) {
+                   board.move(x, yNeedMove, currTile);
+               }
+               return;
+           }
+        }
     }
 
     /** Handles the movements of the tilt in column x of the board
@@ -138,10 +214,20 @@ public class Model {
      * */
     public void tiltColumn(int x) {
         // TODO: Task 7. Fill in this function.
+        for (int i = size() - 1; i >= 0; i--) {
+            if (tile(x, i) != null) {
+                moveTileUpAsFarAsPossible(x, i);
+            }
+        }
     }
 
     public void tilt(Side side) {
         // TODO: Tasks 8 and 9. Fill in this function.
+        board.setViewingPerspective(side);
+        for (int i = 0; i < size(); i++) {
+            tiltColumn(i);
+        }
+        board.setViewingPerspective(Side.NORTH);
     }
 
     /** Tilts every column of the board toward SIDE.
